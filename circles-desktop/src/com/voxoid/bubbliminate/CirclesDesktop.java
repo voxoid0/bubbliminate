@@ -25,20 +25,22 @@ public class CirclesDesktop {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		
 		
-		config.width = 480;
-		config.height = 270;
+//		config.width = 480;
+//		config.height = 270;
 //		config.width = 960;
 //		config.height = 540;
-		config.width = 1280;
-		config.height = 720;
+//		config.width = 1280;
+//		config.height = 720;
+
+		// 1080p
 //		config.width = 1920;
 //		config.height = 1080;
 		config.useGL20 = true;
 		
-		// Phones
+		//////// Phones
 		// Normal size screen, high density
-		config.width = 480;
-		config.height = 800;
+//		config.width = 480;
+//		config.height = 800;
 		// Small screen, high density
 //        config.width = 640;
 //        config.height = 480;
@@ -46,33 +48,33 @@ public class CirclesDesktop {
 //		config.width = 480;
 //		config.height = 320;
 
-		// 7" Tablets
+		//////// 7" Tablets
 //		config.width = 1024;
 //		config.height = 600;
 //		config.width = 1280;
 //		config.height = 800;
-		config.width = 1280;
-		config.height = 720;
-//		config.width = 2048;
-//		config.height = 1536;
-//		config.width = 2560;
-//		config.height = 1600;
-		
-		// 10" Tablets
 //		config.width = 1280;
-//		config.height = 800;
+//		config.height = 720;
 //		config.width = 2048;
 //		config.height = 1536;
 //		config.width = 2560;
 //		config.height = 1600;
 		
-		// YouTube
-		config.width = 854;
-		config.height = 480;
-
-		// FaceBook Ad
+		//////// 10" Tablets
 		config.width = 1280;
-		config.height = 628;
+		config.height = 800;
+//		config.width = 2048;
+//		config.height = 1536;
+//		config.width = 2560;
+//		config.height = 1600;
+		
+		//////// YouTube
+//		config.width = 854;
+//		config.height = 480;
+
+		//////// FaceBook Ad
+//		config.width = 1280;
+//		config.height = 628;
 		
 		new LwjglApplication(new CirclesGame(), config);
 	}
