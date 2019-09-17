@@ -24,6 +24,6 @@ A decade later, a more usable version was made for Windows using Java and Eclips
 
 Three years later, thirteen years after conception, the game was finally published!
 
-![alt text](readme/modern-version.png "OUYA Version")
+![alt text](readme/modern-version.jpg "OUYA Version")
 
 ...raking in a record-setting $70, which equates to something mighty less than $1/hr. And do I regret building it? Of course not!
