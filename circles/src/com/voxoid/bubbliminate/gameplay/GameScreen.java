@@ -1,0 +1,203 @@
+package com.voxoid.bubbliminate.gameplay;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.collections15.map.HashedMap;
+import org.apache.commons.lang.Validate;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.voxoid.bubbliminate.ActorUtil;
+import com.voxoid.bubbliminate.Assets;
+import com.voxoid.bubbliminate.CirclesGlobal;
+import com.voxoid.bubbliminate.ITimeUpdatable;
+import com.voxoid.bubbliminate.PlayerConfig;
+import com.voxoid.bubbliminate.PlayerConfig.Type;
+import com.voxoid.bubbliminate.PlayerConfigScreen;
+import com.voxoid.bubbliminate.Restorable;
+import com.voxoid.bubbliminate.TextureUtils;
+import com.voxoid.bubbliminate.actors.EnvironmentActor;
+import com.voxoid.bubbliminate.actors.FadeActor;
+import com.voxoid.bubbliminate.actors.TextureRegionActor;
+import com.voxoid.bubbliminate.core.model.Game;
+import com.voxoid.bubbliminate.core.model.IGame;
+import com.voxoid.bubbliminate.core.model.IPlayerState;
+
+/**
+ * Lays out the game screen elements and starts things rolling.
+ * @author joel.becker
+ *
+ */
+@Restorable
+public class GameScreen implements Screen {
+
+	private IGame game;
+	private IGameView gameView;
+	private ITimeUpdatable controller;
+	
+	private Stage stage;
+	private EnvironmentActor envir;
+	
+	private Label lblMessage;
+	public static TextureRegionActor background;
+	
+	/**
+	 * This ctor is to appease AppRestorer's requiring the parameter to be
+	 * of the exact same class (later could make its constructor reflection
+	 * more lenient).
+	 * @param game
+	 */
+	public GameScreen(Game game) {
+		this((IGame) game);
+	}
+	
+	public GameScreen(IGame game) {
+		Validate.notNull(game);
+		this.game = game;
+		CirclesGlobal.appRestorer.saveState(this.getClass(), game);
+		logGameStarted(game);
+	}
+
+	private void logGameStarted(IGame game) {
+		Map<String, String> flurryParams = new HashedMap<String, String>();
+		flurryParams.put("numPlayers", Integer.toString(game.getConfig().getNumPlayers()));
+		int i = 1;
+		for (PlayerConfig pc : game.getConfig().getPlayerConfigs()) {
+			flurryParams.put("player" + i + "Type", pc.toString());
+			i++;
+		}
+		flurryParams.put("historyLength", Integer.toString(game.getHistory().getHistory().size()));
+        CirclesGlobal.flurry.logEvent("Game Started", flurryParams);
+	}
+	
+	@Override
+	public void show() {
+//		CirclesGlobal.platform.enableTopBannerAds(true);
+		
+		background = new TextureRegionActor(loadBackground());
+
+		stage = new Stage();
+		stage.addActor(background);
+		
+//		Table table = createMarginsTable();
+////		table.setBounds(0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//		stage.addActor(table);
+//		table.validate();
+		
+		if (CirclesGlobal.isTouchDevice) {
+			gameView = new GameViewTouch(game, stage);
+			controller = new GameControllerTouch(game, (GameViewTouch) gameView); 
+		} else {
+			gameView =  new GameView(game, stage);
+			controller = new GameController(game, (GameView) gameView); 
+		}
+		
+		new FadeActor(stage, Color.BLACK).fadeIn(1f, null);
+		
+		CirclesGlobal.instructionsHelper.showInstructionsIfFirstTime(stage, null);
+		
+		Assets.wavesMusic.setLooping(true);
+		Assets.wavesMusic.play();
+		Assets.wavesMusic.setVolume(0.25f);
+	}
+	
+	public Table createMarginsTable() {
+		Table table = new Table();
+//		table.debug();
+//		table.debugTable();
+		
+		table.add().height(Gdx.graphics.getHeight() * 0.1f).expandX();
+		
+		table.row();
+		table.add(createControlsTable()).width(Gdx.graphics.getWidth() * 0.1f).expandY().uniformX();
+		table.add(createMainTable()).expand().fill();
+		table.add().width(Gdx.graphics.getWidth() * 0.1f).expandY().uniformX();
+		
+		table.row();
+		table.add().height(Gdx.graphics.getHeight() * 0.1f).expandX();
+		
+		table.setFillParent(true);
+		return table;
+	}
+	
+	public Table createMainTable() {
+		Table table = new Table();
+		
+		table.add(lblMessage).expandX().fillX();
+		
+		table.row();
+		table.add(envir).expand().fill();
+//		table.debug();
+		
+		return table;
+	}
+	
+	public Table createControlsTable() {
+		Table table = new Table();
+		
+		return table;
+	}
+
+	@Override
+	public void hide() {
+		Assets.wavesMusic.stop();
+		new FadeActor(stage, Color.BLACK).fadeOut(1f, null);
+		dispose();
+//		CirclesGlobal.platform.enableTopBannerAds(false);
+	}
+
+	private static int frame = 0;
+	@Override
+	public void render(float delta) {
+//		if (!CirclesGlobal.demoHelper.pause()) {
+			controller.update(delta);
+//		}
+		stage.act(delta);
+		
+		stage.draw();
+//		Graphics graphics = Gdx.graphics;
+//		GLCommon gl = graphics.getGLCommon();
+//		Gdx.gl.glClearColor(1f, 1f, 1f, 1);
+//		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		//Table.drawDebug(stage);
+	}
+
+	@Override
+	public void resize(int width, int height) {
+	}
+
+	@Override
+	public void pause() {
+		// nothing
+	}
+
+	private TextureRegion loadBackground() {
+		return TextureUtils.loadNonPotTexture("GameBackground.png", true);
+	}
+
+	@Override
+	public void resume() {
+//		Assets.reloadTextures();
+		Assets.reassignTextureReferences();
+		stage.getRoot().removeActor(background);
+		background.getTextureRegion().getTexture().dispose();
+		background = new TextureRegionActor(loadBackground());
+		stage.getRoot().addActorAt(0, background);
+		ActorUtil.fillScreenKeepingRatio(GameScreen.background);
+		gameView.setEnvirTransform(gameView.getEnvirTransform());
+	}
+
+	@Override
+	public void dispose() {
+		stage.dispose();
+		background.getTextureRegion().getTexture().dispose();
+	}
+
+}
