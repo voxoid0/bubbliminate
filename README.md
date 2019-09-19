@@ -1,6 +1,7 @@
 # Bubbliminate
 A fully-featured, AI-powered, turn-based strategy game written in Java 6 and [libgdx](https://libgdx.badlogicgames.com/). It was published for [OUYA](https://en.wikipedia.org/wiki/Ouya) in 2013, then for Android in 2014.
 
+(Watch the video by clicking the image below.)
 [![Alt text](https://img.youtube.com/vi/qs3qPFU1doI/0.jpg)](https://www.youtube.com/watch?v=qs3qPFU1doI)
 
 (It is currently unavailable in the Google Play store because it needs to be rebuilt with a newer API and resubmitted.)
